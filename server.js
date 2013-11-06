@@ -3,8 +3,8 @@ var express = require('express'),
     rockpool = require('../rockpool'),
     wemix = require('../wemix'),
     prong = require('../prong'),
-    fours = require('../fours')
-    port = 8082;
+    //fours = require('../fours')
+    port = 8081;
 
 app.use('/rockpool', rockpool);
 app.use('/fours', fours);
