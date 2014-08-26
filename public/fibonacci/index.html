@@ -1,0 +1,214 @@
+<html>
+    <head>
+        <title>Fibonacci Sequences</title>
+        <link rel="stylesheet" type="text/css" href="css/fork.css">
+        <script type="text/javascript" src="js/swell.js"></script>
+        <style>
+
+
+body {
+    padding-left:30px;
+    padding-bottom:30px;
+}
+
+li {
+    list-style-type: none;
+}
+
+li span {
+    padding-left:10px;
+}
+
+.pass {
+    outline:1pt solid green;
+}
+
+.fail {
+    outline:1pt solid red;
+}
+
+/* transport */
+
+.playStopButton {
+    display: inline-block;
+    cursor:pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.playStopButton circle {
+    fill:#fcbe00;
+    stroke:transparent;
+    
+}
+
+.playStopButton polygon {
+    fill: #63a909;
+    stroke:transparent;
+}
+
+.playStopButton rect {
+    fill: #ec0b1a;
+    stroke: transparent;
+}
+
+a {
+    cursor:pointer;
+}
+
+.sequence {
+    padding-bottom:40px;
+}
+
+#explanation {
+    padding: 50px;
+    max-width:500px;
+}
+
+
+
+
+
+
+        </style>
+        <script>
+
+
+basePitch = 60
+noteDuration = 0.5 / 4 // 16th notes at 120 bpm
+
+prong.registerTrackType('swell', swell.swellTrack);
+
+function generateNotes(numberOfNotes, modulo){
+    var total = 1
+    var previousTotal = null
+    var notes = []
+    var i = 0;
+
+    while (i < numberOfNotes){
+        notes.push({
+            pitch : basePitch + (total % modulo),
+            start : i * noteDuration + 2,
+            duration : noteDuration
+        })
+        temp = total;
+        total += previousTotal;
+        total = total % modulo;
+        previousTotal = temp;
+        i++;
+    }
+    return notes
+}
+
+shades = ['#b22a5d','#ea942e','#0059b8','#ff717f']
+colour = function(i){return shades[i%4]}
+
+function fibonacciTrack(numberOfNotes, modulo){
+    notes = generateNotes(numberOfNotes, modulo);
+    return {
+        type : 'swell',
+        name : 'fibonacci ' + modulo,
+        notes : notes,
+        colour : 'red'
+    }
+}
+
+function addSequence(tracks){
+    var x = d3.scale.linear().domain([0, 18]).range([0, 800]);
+    var sequence = prong.sequence()
+        .x(x)
+        .tracks(tracks)
+        .trackHeight(100)
+        .audioOut(prong.audioContext().destination);
+
+    sequence.sname = tracks[0].name
+
+    main = d3.select('#main')
+
+    main.append('a').html('export to MIDI').on('click', function(){
+        swell.midi.export(tracks, tracks[0].name + '.midi')
+    })
+    main.append('br')
+    main.append('br')
+    main.append('div').call(prong.transport().sequence(sequence))
+    main.append('div').attr('class','sequence').call(sequence)
+}
+
+// from http://en.wikipedia.org/wiki/Pitch_(music)#Pitch_and_frequency
+function frequencyToPitch(frequency){
+    if (frequency == 0) return 0;
+    var f = frequency / 440;
+    return 69 + 12 * Math.log(f) / Math.LN2;
+}
+
+function fib(limit){
+    numbers = [1,1];
+    i = 1;
+    while(numbers.length < limit){
+        numbers.push(numbers[i] + numbers[i-1]);
+        i++;
+    }
+    return numbers
+}
+
+
+
+var fibNumber = 1
+var limit = 20
+
+addNext = function(){
+    addSequence([fibonacciTrack(Math.max(40,fibNumber*4),fibNumber)])
+    fibNumber++
+    if (fibNumber <= limit){
+        setTimeout(addNext, 20)
+    }
+}
+
+function init(){
+    addNext()
+    // d3.range(1,21).forEach(function(i){
+    //     addSequence([fibonacciTrack(Math.max(40,i*4),i)])
+    // })
+}
+
+        </script>
+    </head>
+    <body onload="init()">
+
+    <div id="explanation">
+        <h1>Generating sequences from the Fibonacci numbers</h1>
+        Sequences are constructed by taking the Fibonacci sequence of numbers,
+        assigning these to pitches, and then wrapping the values round at a
+        certain point. This 'wrapping around' is the same as taking the 
+        remainder after dividing by the given number, which is known as the
+        modulo operation. We write it with the % sign, so we can say 8 % 3 = 2. 
+        <br />
+        <br />
+
+        For example, with 'fibonnaci 3' the sequence<br />
+        <br />
+        1,<br /> 1,<br /> 2,<br /> 3,<br /> 5,<br /> 8,<br /> 13, ...<br /><br />
+        <br />
+        becomes <br />
+        1,<br /> 1,<br /> 2,<br /> 0 (since 3 % 3 = 0),<br /> 2 (5 % 3),<br /> 2 (8 % 3),<br />1 (13 % 3), ... <br />
+        <br />
+        <br />
+        Below are the first 20 sequences, and <a href="all_together.html">here</a>
+        is a sequence of the first 50 strung together in a single track.<br />
+        <br />
+        <br />
+        Note on interacting with the sequences. Click and drag vertically on 
+        timelines to zoom. Hold shift and scroll to scroll horizontally through 
+        the timeline. Hold alt and shift and scroll to zoom. Works much the same
+        as Cubase or Logic.
+    </div>
+
+    <div id="main">
+        
+    </div>
+    </body>
+</html>

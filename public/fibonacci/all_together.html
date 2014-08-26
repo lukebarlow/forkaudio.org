@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>Fibonacci Sequence</title>
+        <link rel="stylesheet" type="text/css" href="css/fork.css">
+        <script type="text/javascript" src="js/swell.js"></script>
+        <style>
+
+
+.trackOverview {
+    display:none;
+}
+
+a {
+    cursor:pointer;
+}
+
+
+        </style>
+        <script>
+
+basePitch = 60
+noteDuration = 0.1
+
+shades = ['#b22a5d','#ea942e','#0059b8','#ff717f']
+colour = function(i){return shades[i%4]}
+
+prong.registerTrackType('swell', swell.swellTrack);
+
+function generateNotes(numberOfNotes, modulo, start){
+    var total = 1;
+    var previousTotal = null;
+    var notes = [];
+    var i = 0;
+    while (i < numberOfNotes){
+        notes.push({
+            pitch : basePitch + (total % modulo),
+            start : i * noteDuration + start,
+            duration : noteDuration
+        })
+        temp = total;
+        total += previousTotal;
+        total = total % modulo;
+        previousTotal = temp;
+        i++;
+    }
+    return notes
+}
+
+function fibonacciTrack(numberOfNotes, modulo, start, colour){
+    notes = generateNotes(numberOfNotes, modulo, start);
+    return {
+        type : 'swell',
+        name : 'fibonacci ' + modulo,
+        notes : notes,
+        colour : colour
+    }
+}
+
+function addSequence(tracks){
+    var x = d3.scale.linear().domain([0, 18]).range([0, 800]);
+    var sequence = prong.sequence()
+        .x(x)
+        .tracks(tracks)
+        .trackHeight(10)
+        .audioOut(prong.audioContext().destination);
+
+    main = d3.select('#main')
+    main.append('a').html('export to MIDI').on('click', function(){
+        swell.midi.export(tracks, 'fibonacci_sequence.midi')
+    })
+    main.append('br')
+    main.append('br')
+    main.append('div').call(prong.transport().sequence(sequence))
+    main.append('div').attr('class','sequence').call(sequence)
+}
+
+function trackEnd(track){
+    var lastNote = track.notes[track.notes.length - 1];
+    return lastNote.start + lastNote.duration;
+}
+
+function isEven(i){
+    return i % 2 == 0
+}
+
+function init(){
+
+    var lastTrack = null;
+    var tracks = []
+
+    d3.range(1,50).forEach(function(i){
+        var start = lastTrack ? trackEnd(lastTrack) : 4;
+        var numberOfNotes = Math.max(i, Math.min(50,i * 4));
+        lastTrack = fibonacciTrack(numberOfNotes, i, start, colour(i));
+        tracks.push(lastTrack)
+    })
+    
+    addSequence(tracks)
+}
+
+        </script>
+    </head>
+    <body onload="init()">
+
+    <div id="main">
+        
+    </div>
+    </body>
+</html>
