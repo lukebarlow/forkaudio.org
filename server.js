@@ -7,7 +7,7 @@ var express = require('express'),
     port = 8081;
 
 app.use('/rockpool', rockpool);
-app.use('/fours', fours);
+//app.use('/fours', fours);
 app.use('/prong', prong);
 app.use('/wemix', wemix);
 app.use(express.static(__dirname + '/public'));
