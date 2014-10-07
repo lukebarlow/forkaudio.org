@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "3.x",
-    "socket.io": "latest"
+    "socket.io": "latest",
+    "browserify-middleware" : "latest",
+    "caching-coffeeify" : "latest"
   },
   "devDependencies": {
      "mocha": "latest", 
