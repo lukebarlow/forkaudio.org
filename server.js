@@ -3,7 +3,7 @@ var express = require('express'),
     
     //rockpool = require('../rockpool'),
     wemix = require('../wemix'),
-    prong = require('../prong'),
+    prong = require('../prong/index'),
     browserify = require('browserify-middleware'),
     coffeeify = require('caching-coffeeify'),
     //fours = require('../fours')
