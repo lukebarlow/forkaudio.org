@@ -4,6 +4,7 @@ var express = require('express'),
     //rockpool = require('../rockpool'),
     wemix = require('../wemix'),
     prong = require('../prong/index'),
+    imafPlayer = require('../imaf-player/index')
     browserify = require('browserify-middleware'),
     coffeeify = require('caching-coffeeify'),
     //fours = require('../fours')
@@ -15,6 +16,7 @@ browserify.settings('extensions', ['.coffee','.js'])
 //app.use('/fours', fours);
 app.use('/prong', prong);
 app.use('/wemix', wemix);
+app.use('/imaf', imafPlayer);
 app.use(express.static(__dirname + '/public'));
 var server = app.listen(port);
 
